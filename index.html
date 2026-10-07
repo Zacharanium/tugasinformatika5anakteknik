@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Berpikir Komputasional — Analisis Jarak dan Pembagian Kelompok</title>
+<style>
+/* =========================
+   GLOBAL
+========================= */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{overflow-x:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.slide{min-height:100vh;min-height:100svh;padding:clamp(56px,9vw,110px) clamp(20px,8vw,120px);display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;background:var(--bg);color:var(--fg)}
+.slide>*{position:relative;z-index:1;max-width:1040px;width:100%}
+h1,h2,h3{line-height:1.05;letter-spacing:-.02em}
+h2{font-size:clamp(2rem,6vw,4.2rem);font-weight:750;margin-bottom:clamp(20px,4vw,40px)}
+h3{font-size:clamp(1.1rem,2.5vw,1.4rem);font-weight:650;margin-bottom:6px}
+p,li{font-size:clamp(1rem,2.2vw,1.2rem)}
+.mut{color:var(--mut)}
+.cap{font-size:.85rem;color:var(--mut)}
+.lead{font-size:clamp(1.15rem,3vw,1.7rem);max-width:30ch;line-height:1.35}
+.big{font-size:clamp(3.2rem,12vw,8rem);font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--ac)}
+button,a.btn{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+
+/* =========================
+   DARK SLIDES (ganjil)
+========================= */
+.slide:nth-child(odd){--bg:#0a0b0f;--fg:#f5f6f8;--mut:#9ba1ae;--line:rgba(255,255,255,.16);--ac:#6b93ff;--soft:rgba(255,255,255,.05)}
+
+/* =========================
+   LIGHT SLIDES (genap)
+========================= */
+.slide:nth-child(even){--bg:#f7f7f4;--fg:#14151b;--mut:#596070;--line:rgba(0,0,0,.16);--ac:#2a55f0;--soft:rgba(0,0,0,.04)}
+
+/* =========================
+   COMPONENTS
+========================= */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,64px);align-items:center}
+.pillars{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.pillar{padding:22px 18px 22px 0;border-bottom:1px solid var(--line);transition:padding .3s,border-color .3s}
+.pillar:hover{padding-left:12px;border-color:var(--ac)}
+.pillar h3{color:var(--ac)}
+.pillar p{font-size:1rem;color:var(--mut)}
+.steps{list-style:none;border-left:2px solid var(--line);margin-left:6px}
+.steps li{padding:0 0 22px 28px;position:relative}
+.steps li::before{content:"";position:absolute;left:-7px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--ac)}
+.steps b{display:block}
+.bars{display:grid;gap:16px}
+.bar{display:grid;grid-template-columns:78px 1fr 66px;align-items:center;gap:12px}
+.track{height:14px;background:var(--soft);border-radius:7px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--ac);border-radius:7px;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.in .fill{width:var(--w)}
+.bar.far .fill{background:var(--fg)}
+.bar span:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:650}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-variant-numeric:tabular-nums}
+th,td{padding:14px 16px;text-align:center;border-bottom:1px solid var(--line);font-size:1rem}
+th{color:var(--mut);font-weight:600}
+tbody th{text-align:left;color:var(--fg)}
+tr:last-child th,tr:last-child td{border-bottom:0}
+td.hi{background:var(--ac);color:#fff;font-weight:750}
+td.dash{color:var(--mut)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,48px);border-top:1px solid var(--line);padding-top:24px}
+.compare div p{color:var(--mut);margin-top:6px}
+.chip{display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:99px;font-size:.9rem;margin:3px 4px 3px 0}
+.chip.a{border-color:var(--ac);color:var(--ac)}
+.ven svg{width:100%;height:auto;max-height:62vh}
+.ven text{fill:var(--fg);font-family:inherit}
+.ven .sub{fill:var(--mut)}
+.facts{display:grid;gap:22px}
+.fact{border-top:1px solid var(--line);padding-top:14px;transition:border-color .3s}
+.fact:hover{border-color:var(--ac)}
+.fact .n{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;color:var(--ac);line-height:1.1;letter-spacing:-.03em}
+.opt{border:1px solid var(--line);border-radius:12px;padding:22px;transition:border-color .3s,transform .3s}
+.opt:hover{border-color:var(--ac);transform:translateY(-3px)}
+.opt p{color:var(--mut);font-size:1rem}
+.cta{margin-top:36px;align-self:flex-start;background:var(--ac);color:#fff;border:0;padding:14px 26px;border-radius:99px;font-weight:650;transition:transform .3s}
+.cta:hover{transform:translateY(-2px)}
+.members{list-style:none;display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:20px}
+.members li{font-size:clamp(1.2rem,3.5vw,1.8rem);font-weight:650}
+.note{font-size:.85rem;color:var(--mut);margin-top:14px}
+
+/* cover */
+.cover h1{font-size:clamp(2.8rem,13vw,9rem);font-weight:850;letter-spacing:-.045em;line-height:.92}
+.cover .sub{font-size:clamp(1.1rem,3vw,1.6rem);color:var(--mut);margin:22px 0 6px}
+.net{position:absolute!important;right:-4%;top:6%;width:min(70vw,640px);height:auto;opacity:.9;z-index:0!important;max-width:none!important}
+.net line{stroke:var(--ac);stroke-width:1.2;opacity:.5;stroke-dasharray:400;stroke-dashoffset:400;animation:draw 2.4s .4s forwards}
+.net circle{fill:var(--ac);animation:float 7s ease-in-out infinite}
+.net circle:nth-of-type(2n){animation-duration:9s;fill:var(--fg)}
+.grid{position:absolute!important;inset:0;max-width:none!important;z-index:0!important;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:56px 56px;opacity:.35;animation:pan 40s linear infinite;-webkit-mask-image:linear-gradient(#000,transparent 85%);mask-image:linear-gradient(#000,transparent 85%)}
+
+/* =========================
+   NAV + PROGRESS
+========================= */
+#dots{position:fixed;right:clamp(8px,2vw,22px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;z-index:50}
+#dots button{width:22px;height:22px;background:none;border:0;display:grid;place-items:center}
+#dots button::after{content:"";width:7px;height:7px;border-radius:50%;background:#8a90a0;opacity:.6;transition:all .3s}
+#dots button.on::after{background:#4a74ff;opacity:1;transform:scale(1.7)}
+#count{position:fixed;left:clamp(14px,3vw,28px);bottom:16px;z-index:50;font-size:.85rem;font-weight:650;font-variant-numeric:tabular-nums;mix-blend-mode:difference;color:#fff}
+#bar{position:fixed;left:0;top:0;height:3px;width:0;background:#4a74ff;z-index:60}
+
+/* =========================
+   ANIMATIONS
+========================= */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;transition-delay:calc(var(--i,0)*90ms)}
+.in .rv,.rv.in{opacity:1;transform:none}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes float{50%{transform:translate(8px,-10px)}}
+@keyframes pan{to{background-position:56px 56px}}
+
+/* =========================
+   REDUCED MOTION
+========================= */
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important}
+ .rv{opacity:1;transform:none}
+ .net line{stroke-dashoffset:0}
+ .fill{width:var(--w)}
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width:768px){
+ .split,.compare,.pillars{grid-template-columns:1fr}
+ .slide{padding-right:40px}
+ .bar{grid-template-columns:62px 1fr 56px;gap:8px}
+ .net{opacity:.35;top:2%}
+ th,td{padding:12px 10px}
+}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="count" aria-live="polite">01 / 11</div>
+<nav id="dots" aria-label="Navigasi slide"></nav>
+
+<main>
+
+<!-- =========================
+     SLIDE 01 — COVER
+========================= -->
+<section class="slide cover" aria-label="Cover">
+  <div class="grid"></div>
+  <svg class="net" viewBox="0 0 400 400" aria-hidden="true">
+    <line x1="60" y1="90" x2="200" y2="60"/><line x1="200" y1="60" x2="320" y2="150"/>
+    <line x1="60" y1="90" x2="130" y2="230"/><line x1="130" y1="230" x2="320" y2="150"/>
+    <line x1="130" y1="230" x2="250" y2="330"/><line x1="320" y1="150" x2="250" y2="330"/>
+    <line x1="200" y1="60" x2="130" y2="230"/>
+    <circle cx="60" cy="90" r="7"/><circle cx="200" cy="60" r="10"/><circle cx="320" cy="150" r="7"/>
+    <circle cx="130" cy="230" r="9"/><circle cx="250" cy="330" r="7"/>
+  </svg>
+  <h1 class="rv">Berpikir<br>Komputasional</h1>
+  <p class="sub rv" style="--i:2">Analisis Jarak dan Pembagian Kelompok</p>
+  <p class="cap rv" style="--i:3">Aktivitas BKAP-K12-01 · SMAN 1 Ponggok</p>
+  <button class="cta rv" style="--i:4" data-next>Mulai Presentasi ↓</button>
+</section>
+
+<!-- =========================
+     SLIDE 02 — MASALAH
+========================= -->
+<section class="slide" aria-label="Masalah">
+  <h2 class="rv">Masalahnya sederhana: siapa sekelompok dengan siapa?</h2>
+  <p class="lead rv" style="--i:1">Kelompok dibentuk dari jarak rumah yang berdekatan. Tebakan awal harus dibuktikan dengan perhitungan.</p>
+  <div class="facts rv" style="--i:2;margin-top:36px;max-width:420px">
+    <div class="fact"><div class="n" data-to="5">0</div><p class="mut">anggota dengan koordinat rumah masing-masing</p></div>
+    <div class="fact"><div class="n">1 titik</div><p class="mut">acuan: SMAN 1 Ponggok</p></div>
+  </div>
+</section>
+
+<!-- =========================
+     SLIDE 03 — BERPIKIR KOMPUTASIONAL
+========================= -->
+<section class="slide" aria-label="Berpikir komputasional">
+  <h2 class="rv">Empat cara berpikir dalam satu tugas</h2>
+  <div class="pillars">
+    <div class="pillar rv" style="--i:1"><h3>Dekomposisi</h3><p>Masalah dipecah: data lokasi, jarak, lalu jumlah anggota.</p></div>
+    <div class="pillar rv" style="--i:2"><h3>Pengenalan pola</h3><p>Mencari anggota yang jarak rumahnya relatif dekat.</p></div>
+    <div class="pillar rv" style="--i:3"><h3>Abstraksi</h3><p>Hanya memakai koordinat dan jarak; hal lain diabaikan.</p></div>
+    <div class="pillar rv" style="--i:4"><h3>Algoritma</h3><p>Langkah berurutan untuk mengelompokkan anggota.</p></div>
+  </div>
+</section>
+
+<!-- =========================
+     SLIDE 04 — LANGKAH (ALGORITMA)
+========================= -->
+<section class="slide" aria-label="Langkah penyelesaian">
+  <h2 class="rv">Lima langkah penyelesaian</h2>
+  <ol class="steps">
+    <li class="rv" style="--i:1"><b>Kumpulkan data</b><span class="mut">Koordinat rumah 5 anggota dan sekolah.</span></li>
+    <li class="rv" style="--i:2"><b>Hitung jarak</b><span class="mut">Semua pasangan rumah, dengan rumus Haversine.</span></li>
+    <li class="rv" style="--i:3"><b>Bentuk kelompok</b><span class="mut">Mulai dari pasangan dengan jarak terdekat.</span></li>
+    <li class="rv" style="--i:4"><b>Periksa anggota bimbang</b><span class="mut">Yang beririsan atau berada di luar kelompok.</span></li>
+    <li class="rv" style="--i:5"><b>Cari solusi</b><span class="mut">Supaya jumlah anggota tiap kelompok seimbang.</span></li>
+  </ol>
+</section>
+
+<!-- =========================
+     SLIDE 05 — DATA JARAK KE SEKOLAH
+========================= -->
+<section class="slide" aria-label="Jarak ke sekolah">
+  <h2 class="rv">Jarak rumah ke sekolah</h2>
+  <div class="bars rv" style="--i:1">
+    <div class="bar"><span>Dani</span><div class="track"><div class="fill" style="--w:2.4%;min-width:6px"></div></div><span>0,34</span></div>
+    <div class="bar"><span>Radhit</span><div class="track"><div class="fill" style="--w:28%"></div></div><span>3,97</span></div>
+    <div class="bar"><span>Zarfan</span><div class="track"><div class="fill" style="--w:31.8%"></div></div><span>4,50</span></div>
+    <div class="bar"><span>Mahmud</span><div class="track"><div class="fill" style="--w:32.9%"></div></div><span>4,66</span></div>
+    <div class="bar far"><span>Zakky</span><div class="track"><div class="fill" style="--w:100%"></div></div><span>14,16</span></div>
+  </div>
+  <p class="cap" style="margin-top:20px">Satuan kilometer, jarak lurus (garis udara), bukan jarak lewat jalan.</p>
+</section>
+
+<!-- =========================
+     SLIDE 06 — TABEL JARAK ANTAR RUMAH
+========================= -->
+<section class="slide" aria-label="Tabel jarak">
+  <h2 class="rv">Jarak antar rumah (km)</h2>
+  <div class="tw rv" style="--i:1">
+    <table>
+      <thead><tr><th></th><th>Dani</th><th>Zakky</th><th>Zarfan</th><th>Radhit</th><th>Mahmud</th></tr></thead>
+      <tbody>
+        <tr><th>Dani</th><td class="dash">-</td><td>14,31</td><td>4,43</td><td>3,88</td><td>4,42</td></tr>
+        <tr><th>Zakky</th><td>14,31</td><td class="dash">-</td><td>11,12</td><td>18,10</td><td>13,69</td></tr>
+        <tr><th>Zarfan</th><td>4,43</td><td>11,12</td><td class="dash">-</td><td>8,13</td><td class="hi">2,71</td></tr>
+        <tr><th>Radhit</th><td class="hi">3,88</td><td>18,10</td><td>8,13</td><td class="dash">-</td><td>7,22</td></tr>
+        <tr><th>Mahmud</th><td>4,42</td><td>13,69</td><td class="hi">2,71</td><td>7,22</td><td class="dash">-</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap" style="margin-top:16px">Sel biru: dua pasangan terdekat, Zarfan–Mahmud (2,71) dan Dani–Radhit (3,88).</p>
+</section>
+
+<!-- =========================
+     SLIDE 07 — PERKIRAAN VS PEMBUKTIAN
+========================= -->
+<section class="slide" aria-label="Perkiraan dan pembuktian">
+  <h2 class="rv">Tebakan awal terbukti benar</h2>
+  <div class="compare">
+    <div class="rv" style="--i:1"><h3>Perkiraan awal</h3><p>Dari posisi koordinat: Dani + Radhit, Zarfan + Mahmud, dan Zakky sendirian.</p></div>
+    <div class="rv" style="--i:2"><h3>Hasil pembuktian</h3><p>Sama. Pasangan terdekat memang Zarfan–Mahmud dan Dani–Radhit. Zakky minimal 11,12 km dari semua anggota.</p></div>
+  </div>
+</section>
+
+<!-- =========================
+     SLIDE 08 — HIMPUNAN
+========================= -->
+<section class="slide" aria-label="Himpunan">
+  <h2 class="rv">Himpunan kelompok</h2>
+  <div class="split">
+    <div class="ven rv" style="--i:1">
+      <svg viewBox="0 0 420 330" role="img" aria-label="Diagram himpunan: A berisi Dani dan Radhit, B berisi Zarfan dan Mahmud, Dani di irisan, Zakky di luar">
+        <rect x="4" y="4" width="412" height="322" rx="14" fill="none" stroke="currentColor" stroke-opacity=".25"/>
+        <circle cx="150" cy="150" r="100" fill="#2a55f0" fill-opacity=".18" stroke="#4a74ff" stroke-width="2"/>
+        <circle cx="270" cy="150" r="100" fill="#2a55f0" fill-opacity=".18" stroke="#4a74ff" stroke-width="2"/>
+        <text x="95" y="60" font-weight="700" font-size="18">A</text>
+        <text x="315" y="60" font-weight="700" font-size="18">B</text>
+        <text x="95" y="155" font-size="15">Radhit</text>
+        <text x="210" y="148" font-size="15" font-weight="700" text-anchor="middle">Dani</text>
+        <text x="210" y="168" font-size="11" class="sub" text-anchor="middle">irisan</text>
+        <text x="260" y="140" font-size="15" display="none">.</text>
+        <text x="300" y="135" font-size="15">Zarfan</text>
+        <text x="300" y="175" font-size="15">Mahmud</text>
+        <text x="30" y="305" font-size="15" font-weight="700">Zakky</text>
+        <text x="90" y="305" font-size="12" class="sub">di luar himpunan</text>
+      </svg>
+    </div>
+    <div class="rv" style="--i:2">
+      <p><span class="chip a">A</span>Dani, Radhit</p>
+      <p><span class="chip a">B</span>Zarfan, Mahmud</p>
+      <p><span class="chip">Irisan</span>Dani (perbatasan)</p>
+      <p><span class="chip">Luar</span>Zakky</p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================
+     SLIDE 09 — ANALISIS
+========================= -->
+<section class="slide" aria-label="Analisis">
+  <h2 class="rv">Dua anggota yang menarik dianalisis</h2>
+  <div class="split">
+    <div class="rv" style="--i:1"><div class="big">3,88<span style="font-size:.35em"> vs 4,43</span></div><p class="mut" style="margin-top:12px">Dani ke Radhit, dibanding Dani ke Zarfan (4,42 ke Mahmud). Selisihnya tipis, jadi Dani bisa masuk A maupun B.</p></div>
+    <div class="rv" style="--i:2"><div class="big"><span data-to="11.12" data-dec="2">0</span></div><p class="mut" style="margin-top:12px">km, jarak Zakky ke anggota terdekatnya (Zarfan). Terlalu jauh untuk masuk kelompok mana pun.</p></div>
+  </div>
+</section>
+
+<!-- =========================
+     SLIDE 10 — SOLUSI
+========================= -->
+<section class="slide" aria-label="Solusi">
+  <h2 class="rv">5 orang tidak bisa dibagi rata jadi 2 kelompok</h2>
+  <div class="split">
+    <div class="opt rv" style="--i:1"><h3>Pilihan 1</h3><p>Satu kelompok berlima. Semua sama rata, tapi kurang sesuai konsep kelompok berdasarkan kedekatan.</p></div>
+    <div class="opt rv" style="--i:2"><h3>Pilihan 2</h3><p>Tambah satu anggota agar jadi 2 kelompok × 3 orang. Zakky bergabung ke B (terdekat: Zarfan, 11,12 km), Dani tetap di A, dan A menerima satu anggota tambahan.</p></div>
+  </div>
+</section>
+
+<!-- =========================
+     SLIDE 11 — KESIMPULAN
+========================= -->
+<section class="slide" aria-label="Kesimpulan">
+  <h2 class="rv">Kesimpulan</h2>
+  <ol class="steps">
+    <li class="rv" style="--i:1"><b>Pola jarak jelas.</b><span class="mut">Dua pasangan terdekat: Zarfan–Mahmud dan Dani–Radhit.</span></li>
+    <li class="rv" style="--i:2"><b>Tebakan awal sesuai pembuktian.</b><span class="mut">Dani di perbatasan, Zakky di luar himpunan.</span></li>
+    <li class="rv" style="--i:3"><b>Keseimbangan perlu penyesuaian.</b><span class="mut">Satu kelompok berlima, atau tambah satu anggota untuk 3 lawan 3.</span></li>
+  </ol>
+</section>
+
+<!-- =========================
+     SLIDE 12 — PENUTUP
+========================= -->
+<section class="slide" aria-label="Penutup">
+  <h2 class="rv" style="font-size:clamp(2.6rem,10vw,7rem)">Terima kasih</h2>
+  <p class="lead rv" style="--i:1">Kelompok 7</p>
+  <ul class="members rv" style="--i:2">
+    <li>Dani</li><li>Zakky</li><li>Zarfan</li><li>Radhit</li><li>Mahmud</li>
+  </ul>
+  <p class="note rv" style="--i:3">Jarak dihitung sebagai garis lurus antar koordinat, bukan rute jalan.</p>
+</section>
+
+</main>
+
+<script>
+/* =========================
+   SETUP
+========================= */
+const slides=[...document.querySelectorAll('.slide')];
+const dots=document.getElementById('dots');
+const count=document.getElementById('count');
+const bar=document.getElementById('bar');
+const pad=n=>String(n).padStart(2,'0');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Dot navigation */
+slides.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.setAttribute('aria-label','Slide '+(i+1));
+  b.onclick=()=>s.scrollIntoView({behavior:reduce?'auto':'smooth'});
+  dots.appendChild(b);
+});
+document.querySelector('[data-next]').onclick=()=>slides[1].scrollIntoView({behavior:reduce?'auto':'smooth'});
+
+/* =========================
+   SCROLL REVEAL + COUNTER
+========================= */
+function countUp(el){
+  const to=parseFloat(el.dataset.to),dec=+(el.dataset.dec||0);
+  if(reduce){el.textContent=to.toFixed(dec).replace('.',',');return}
+  const t0=performance.now();
+  (function f(t){
+    const p=Math.min((t-t0)/1000,1);
+    el.textContent=(to*(1-Math.pow(1-p,3))).toFixed(dec).replace('.',',');
+    if(p<1)requestAnimationFrame(f);
+  })(t0);
+}
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting&&!e.target.classList.contains('in')){
+    e.target.classList.add('in');
+    e.target.querySelectorAll('[data-to]').forEach(countUp);
+  }
+}),{threshold:.25});
+slides.forEach(s=>io.observe(s));
+
+/* =========================
+   ACTIVE SLIDE + PROGRESS
+========================= */
+function update(){
+  const mid=innerHeight/2;
+  let cur=0;
+  slides.forEach((s,i)=>{const r=s.getBoundingClientRect();if(r.top<=mid&&r.bottom>mid)cur=i});
+  [...dots.children].forEach((d,i)=>d.classList.toggle('on',i===cur));
+  count.textContent=pad(cur+1)+' / '+pad(slides.length);
+  const max=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(max>0?scrollY/max*100:0)+'%';
+}
+addEventListener('scroll',update,{passive:true});
+addEventListener('resize',update);
+update();
+</script>
+</body>
+</html>
